@@ -1,24 +1,24 @@
-import discord
-import youtube_dl
 from youtube_dl import utils
-import os
-import asyncio
-import math
-import pymongo
-from helper import *
-from discord.ext import commands
-import asyncio
 import random
 # import nn
 import discord
-import youtube_dl
 from discord.ext import commands
-from discord.utils import get
 
 # import cogs.service.nn as nn
 import cogs.service.speach as speach
 import cogs.service.utils as utils
 import cogs.service.wolfram as wolfram
+
+def create_ytdl_source(source, volume=0.5):
+    player = discord.PCMVolumeTransformer(
+        discord.FFmpegPCMAudio(
+            source,
+            before_options=" -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 1",
+            options='-vn'
+        ),
+        volume=volume
+    )
+    return player
 
 class Test(commands.Cog,name='Other'):
     def __init__(self, client):
@@ -84,16 +84,22 @@ class Test(commands.Cog,name='Other'):
                 a = i.items()
                 await ctx.send(a)
 
+    @commands.command()
+    async def say(self,ctx:discord.ext.commands.Context,*,ph):
+        voice = ctx.voice_client
+        source = discord.FFmpegPCMAudio(speach.tell(ph))
+        voice.play(source)
+
 
     @commands.command()
-    async def add(self, ctx,file,*,phrase):
-        with open(f"{file}.txt", "a", encoding='utf-8') as texts:
+    async def add(self, ctx,*,phrase):
+        with open('texts/phrases.txt', "a", encoding='utf-8') as texts:
             texts.write(phrase + ' \n')
         await ctx.send("Добавленна фраза: {}".format(phrase))
 
-    @commands.command()
+    @commands.command(aliases=['ph', ])
     async def phrase(self, ctx):
-        with open("phrases.txt", "r", encoding='utf-8') as texts:
+        with open("texts/phrases.txt", "r", encoding='utf-8') as texts:
             text = texts.readlines()
             linesc = len(text)
             index = random.randint(a=0, b=linesc - 1)
@@ -102,7 +108,7 @@ class Test(commands.Cog,name='Other'):
 
     @commands.command()
     async def lastphrase(self, ctx):
-        with open("phrases.txt", "r", encoding='utf-8') as texts:
+        with open("texts/phrases.txt", "r", encoding='utf-8') as texts:
             text = texts.readlines()
             ph = text[-1][:-1]
         await ctx.send(ph)

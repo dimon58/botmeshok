@@ -8,7 +8,7 @@ import math
 import pymongo
 from helper import *
 from discord.ext import commands
-
+from langs.bidlo import Music as lang
 # Suppress annoying console message
 youtube_dl.utils.bug_reports_message = lambda: ''
 
@@ -52,7 +52,8 @@ def ensure_voice():
                 embed=create_embed(
                     # 'You must be connected to a voice channel to use this command'
                     # 'Вы должны присоедениться к голосовому каналу, для использования этой команды'
-                    'Ты ебать выйди со мной раз на раз в голосовой канал, а не в текстовом пиши'
+                    # 'Ты ебать выйди со мной раз на раз в голосовой канал, а не в текстовом пиши'
+                    lang.phrases.ensure_voice_not_in_voice
                 )
             )
             return False
@@ -90,7 +91,8 @@ class Music(commands.Cog, name='Music'):
             asyncio.run_coroutine_threadsafe(
                 ctx.send(
                     embed=create_embed(
-                        'There is an error with Youtube service, please try again'
+                        # 'There is an error with Youtube service, please try again'
+                        lang.phrases.extract_info_youtube_error
                     ), delete_after=10
                 ), self.client.loop
             )
@@ -123,7 +125,8 @@ class Music(commands.Cog, name='Music'):
                 asyncio.run_coroutine_threadsafe(
                     text_channel.send(
                         embed=create_embed(
-                            'There is an error with Youtube service, retrying'
+                            # 'There is an error with Youtube service, retrying'
+                            lang.phrases.play_song_youtube_error
                         ),
                         delete_after=10
                     ), self.client.loop
@@ -136,7 +139,7 @@ class Music(commands.Cog, name='Music'):
             asyncio.run_coroutine_threadsafe(
                 text_channel.send(
                     embed=create_embed(
-                        f'**Now playing**: [{info["title"]}]({info["webpage_url"]})'
+                        f'**{lang.phrases.play_song_now_playing}**: [{info["title"]}]({info["webpage_url"]})'
                     ),
                     delete_after=info['duration']
                 ), self.client.loop
@@ -198,7 +201,7 @@ class Music(commands.Cog, name='Music'):
         name='join',
         aliases=['j', 'connect', ],
         # description='Connect to your current voice channel',
-        description='Присоединяет к вашему голосовому каналу',
+        description=lang.descriptions.join,
         usage='`.join`'
     )
     @ensure_voice()
@@ -207,7 +210,8 @@ class Music(commands.Cog, name='Music'):
         if arg != None:
             await ctx.send(
                 embed=create_embed(
-                    'This command does not take in any other argument'
+                    # 'This command does not take in any other argument'
+                    lang.phrases.join_unnecessary_arguments
                 )
             )
         else:
@@ -226,7 +230,7 @@ class Music(commands.Cog, name='Music'):
                     )
                     await ctx.send(
                         embed=create_embed(
-                            f'Bot connected to **{channel}**'
+                            f'{lang.phrases.join_connected} **{channel}**'
                         ),
                         delete_after=10
                     )
@@ -234,7 +238,8 @@ class Music(commands.Cog, name='Music'):
                     await ctx.send(
                         embed=create_embed(
                             # 'Please wait until other members are done listening to music'
-                            'Пожалуйста подождите, пока остальные участники дослушают музыку'
+                            # 'Пожалуйста подождите, пока остальные участники дослушают музыку'
+                            lang.phrases.join_wait
                         ),
                         delete_after=10
                     )
@@ -266,7 +271,7 @@ class Music(commands.Cog, name='Music'):
         name='leave',
         aliases=['dc', 'disconnect'],
         # description='Disconnect from the voice channel',
-        description='Отсоединяет от голосового канала',
+        description=lang.descriptions.leave,
         usage='`.leave`'
     )
     @blacklist_check()
@@ -274,7 +279,8 @@ class Music(commands.Cog, name='Music'):
         if arg != None:
             await ctx.send(
                 embed=create_embed(
-                    'This command does not take in any other argument'
+                    # 'This command does not take in any other argument'
+                    lang.phrases.leave_unnecessary_arguments
                 ),
                 delete_after=10
             )
@@ -310,21 +316,23 @@ class Music(commands.Cog, name='Music'):
                         voice.stop()
                         await ctx.send(
                             embed=create_embed(
-                                f'Bot disconnected from **{voice.channel}**'
+                                f'{lang.phrases.leave_disconnect} **{voice.channel}**'
                             ),
                             delete_after=10
                         )
                     else:
                         await ctx.send(
                             embed=create_embed(
-                                'Please wait until other members are done listening to music'
+                                # 'Please wait until other members are done listening to music'
+                                lang.phrases.leave_wait
                             ),
                             delete_after=10
                         )
             else:
                 await ctx.send(
                     embed=create_embed(
-                        'Bot was not connected to any voice channel'
+                        # 'Bot was not connected to any voice channel'
+                        lang.phrases.leave_not_connected
                     ),
                     delete_after=10
                 )
@@ -333,7 +341,7 @@ class Music(commands.Cog, name='Music'):
         name='play',
         aliases=['p', ],
         # description='Play music from Youtube',
-        description='Проигрывает музыку с Youtube',
+        description=lang.descriptions.play,
         # usage='`.play [url or song name]`',
         usage='`.play [url или название песни]`'
     )
@@ -383,7 +391,8 @@ class Music(commands.Cog, name='Music'):
                             if 'title' not in info['entries'][0]:
                                 await ctx.send(
                                     embed=create_embed(
-                                        'This playlist link is not supported'
+                                        # 'This playlist link is not supported'
+                                        lang.phrases.play_playlist_not_supported
                                     ),
                                     delete_after=10
                                 )
@@ -426,7 +435,7 @@ class Music(commands.Cog, name='Music'):
                                         )
                                     await ctx.send(
                                         embed=create_embed(
-                                            f'{len(info["entries"])} songs from [link]({url}) added to queue'
+                                            f'{len(info["entries"])} {lang.phrases.play_songs_from} [link]({url}) {lang.phrases.play_added_to_queue}'
                                         ),
                                         delete_after=10
                                     )
@@ -451,7 +460,8 @@ class Music(commands.Cog, name='Music'):
                 else:  # Bot is not available
                     await ctx.send(
                         embed=create_embed(
-                            'Please wait until other members are done listening to music'
+                            # 'Please wait until other members are done listening to music'
+                            lang.phrases.play_wait
                         ),
                         delete_after=10
                     )
@@ -464,7 +474,8 @@ class Music(commands.Cog, name='Music'):
                         if 'title' not in info['entries'][0]:
                             await ctx.send(
                                 embed=create_embed(
-                                    'This playlist link is not supported'
+                                    # 'This playlist link is not supported'
+                                    lang.phrases.play_playlist_not_supported
                                 ),
                                 delete_after=10
                             )
@@ -490,7 +501,7 @@ class Music(commands.Cog, name='Music'):
                                 )
                                 await ctx.send(
                                     embed=create_embed(
-                                        f'Song [{song_info["title"]}]({song_info["webpage_url"]}) added to queue'
+                                        f'{lang.phrases.play_song} [{song_info["title"]}]({song_info["webpage_url"]}) {lang.phrases.play_added_to_queue}'
                                     ),
                                     delete_after=10
                                 )
@@ -513,7 +524,7 @@ class Music(commands.Cog, name='Music'):
                                     )
                                 await ctx.send(
                                     embed=create_embed(
-                                        f'{len(info["entries"])} songs added to queue'
+                                        f'{len(info["entries"])} {lang.phrases.play_songs_added_to_queue}'
                                     ),
                                     delete_after=10
                                 )
@@ -535,7 +546,7 @@ class Music(commands.Cog, name='Music'):
                         )
                         await ctx.send(
                             embed=create_embed(
-                                f'Song [{info["title"]}]({info["webpage_url"]}) added to queue'
+                                f'{lang.phrases.play_song} [{info["title"]}]({info["webpage_url"]}) {lang.phrases.play_added_to_queue}'
                             ),
                             delete_after=10
                         )
@@ -547,7 +558,8 @@ class Music(commands.Cog, name='Music'):
                         if 'title' not in info['entries'][0]:
                             await ctx.send(
                                 embed=create_embed(
-                                    'This playlist link is not supported'
+                                    # 'This playlist link is not supported'
+                                    lang.phrases.play_playlist_not_supported
                                 ),
                                 delete_after=10
                             )
@@ -590,7 +602,7 @@ class Music(commands.Cog, name='Music'):
                                     )
                                 await ctx.send(
                                     embed=create_embed(
-                                        f'{len(info["entries"])} songs from [link]({url}) added to queue'
+                                        f'{len(info["entries"])} {lang.phrases.play_songs_from} [link]({url}) {lang.phrases.play_added_to_queue}'
                                     ),
                                     delete_after=10
                                 )
@@ -638,7 +650,8 @@ class Music(commands.Cog, name='Music'):
                 if 'title' not in info['entries'][0]:
                     await ctx.send(
                         embed=create_embed(
-                            'This playlist link is not supported'
+                            # 'This playlist link is not supported'
+                            lang.phrases.play_playlist_not_supported
                         ),
                         delete_after=10
                     )
@@ -680,7 +693,7 @@ class Music(commands.Cog, name='Music'):
                             )
                         await ctx.send(
                             embed=create_embed(
-                                f'{len(info["entries"])} songs from [link]({url}) added to queue'
+                                f'{len(info["entries"])} {lang.phrases.play_songs_from} [link]({url}) {lang.phrases.play_added_to_queue}'
                             ),
                             delete_after=10
                         )
@@ -707,7 +720,7 @@ class Music(commands.Cog, name='Music'):
         name='pause',
         aliases=['pau', 'pa'],
         # description='Pauses the music',
-        description='Ставит музыку на паузу',
+        description=lang.descriptions.pause,
         usage='`.pause`'
     )
     @ensure_voice()
@@ -716,7 +729,8 @@ class Music(commands.Cog, name='Music'):
         if arg != None:
             await ctx.send(
                 embed=create_embed(
-                    'This command does not take in any other argument'
+                    # 'This command does not take in any other argument'
+                    lang.phrases.pause_unnecessary_arguments
                 ),
                 delete_after=10
             )
@@ -744,28 +758,32 @@ class Music(commands.Cog, name='Music'):
                     elif voice.is_paused():
                         await ctx.send(
                             embed=create_embed(
-                                'Cannot pause while bot was already paused'
+                                # 'Cannot pause while bot was already paused'
+                                lang.phrases.pause_already_pause
                             ),
                             delete_after=10
                         )
                     else:
                         await ctx.send(
                             embed=create_embed(
-                                'Cannot pause while bot was not playing music'
+                                # 'Cannot pause while bot was not playing music'
+                                lang.phrases.pause_not_playing
                             ),
                             delete_after=10
                         )
                 else:
                     await ctx.send(
                         embed=create_embed(
-                            'Please wait until other members are done listening to music'
+                            # 'Please wait until other members are done listening to music'
+                            lang.phrases.pause_wait
                         ),
                         delete_after=10
                     )
             else:
                 await ctx.send(
                     embed=create_embed(
-                        'Cannot pause while bot was not connected to any voice channel'
+                        # 'Cannot pause while bot was not connected to any voice channel'
+                        lang.phrases.pause_not_connected
                     ),
                     delete_after=10
                 )
@@ -774,7 +792,7 @@ class Music(commands.Cog, name='Music'):
         name='resume',
         aliases=['res', 're'],
         # description='Resume the music',
-        description='Возобновляет музыку',
+        description=lang.descriptions.resume,
         usage='`.resume`'
     )
     @ensure_voice()
@@ -783,7 +801,8 @@ class Music(commands.Cog, name='Music'):
         if arg != None:
             await ctx.send(
                 embed=create_embed(
-                    'This command does not take in any other argument'
+                    # 'This command does not take in any other argument'
+                    lang.phrases.resume_unnecessary_arguments
                 ),
                 delete_after=10
             )
@@ -794,7 +813,8 @@ class Music(commands.Cog, name='Music'):
                 if voice.channel != channel:
                     await ctx.send(
                         embed=create_embed(
-                            'Please wait until other members are done listening to music'
+                            # 'Please wait until other members are done listening to music'
+                            lang.phrases.resume_wait
                         ),
                         delete_after=10
                     )
@@ -811,14 +831,16 @@ class Music(commands.Cog, name='Music'):
                         )
                         await ctx.send(
                             embed=create_embed(
-                                'Resumed music'
+                                # 'Resumed music'
+                                lang.phrases.resume_resumed
                             ),
                             delete_after=10
                         )
                     elif voice.is_playing():
                         await ctx.send(
                             embed=create_embed(
-                                'Cannot resume if music is already playing'
+                                # 'Cannot resume if music is already playing'
+                                lang.phrases.resume_already_resumed
                             ),
                             delete_after=10
                         )
@@ -836,14 +858,16 @@ class Music(commands.Cog, name='Music'):
                             )
                             await ctx.send(
                                 embed=create_embed(
-                                    'Resumed music'
+                                    # 'Resumed music'
+                                    lang.phrases.resume_resumed
                                 ),
                                 delete_after=10
                             )
                         else:
                             await ctx.send(
                                 embed=create_embed(
-                                    'Cannot resume if there is no music to play'
+                                    # 'Cannot resume if there is no music to play'
+                                    lang.phrases.resume_not_music
                                 ),
                                 delete_after=10
                             )
@@ -852,7 +876,8 @@ class Music(commands.Cog, name='Music'):
                 if item == None:
                     await ctx.send(
                         embed=create_embed(
-                            'Cannot resume while bot was not connected to any voice channel'
+                            # 'Cannot resume while bot was not connected to any voice channel'
+                            lang.phrases.resume_not_connected
                         ),
                         delete_after=10
                     )
@@ -863,7 +888,7 @@ class Music(commands.Cog, name='Music'):
                     self.play_song(ctx.guild)
                     await ctx.send(
                         embed=create_embed(
-                            'Resumed music'
+                            lang.phrases.resume_resumed
                         ),
                         delete_after=10
                     )
@@ -872,7 +897,7 @@ class Music(commands.Cog, name='Music'):
         name='stop',
         aliases=['s', 'st', ],
         # description='Stop playing music',
-        description='Останавливает музыку',
+        description=lang.descriptions.stop,
         usage='`.stop`'
     )
     @ensure_voice()
@@ -881,7 +906,8 @@ class Music(commands.Cog, name='Music'):
         if arg != None:
             await ctx.send(
                 embed=create_embed(
-                    'This command does not take in any other argument'
+                    # 'This command does not take in any other argument'
+                    lang.phrases.stop_unnecessary_arguments
                 ),
                 delete_after=10
             )
@@ -892,7 +918,8 @@ class Music(commands.Cog, name='Music'):
                 if voice.channel != channel:
                     await ctx.send(
                         embed=create_embed(
-                            'Please wait until other members are done listening to music'
+                            # 'Please wait until other members are done listening to music'
+                            lang.phrases.stop_wait
                         ),
                         delete_after=10
                     )
@@ -912,21 +939,24 @@ class Music(commands.Cog, name='Music'):
                         voice.stop()
                         await ctx.send(
                             embed=create_embed(
-                                'Stopped playing music'
+                                # 'Stopped playing music'
+                                lang.phrases.stop_stoped
                             ),
                             delete_after=10
                         )
                     else:
                         await ctx.send(
                             embed=create_embed(
-                                'Cannot stop if no music is playing'
+                                # 'Cannot stop if no music is playing'
+                                lang.phrases.stop_no_music
                             ),
                             delete_after=10
                         )
             else:
                 await ctx.send(
                     embed=create_embed(
-                        'Cannot stop while bot was not connected to any voice channel'
+                        # 'Cannot stop while bot was not connected to any voice channel'
+                        lang.phrases.stop_not_connected
                     ),
                     delete_after=10
                 )
@@ -935,7 +965,7 @@ class Music(commands.Cog, name='Music'):
         name='skip',
         aliases=['sk', 'next'],
         # description='Skip to a song in the music queue',
-        description='Пропускает песню в очереди',
+        description=lang.descriptions.skip,
         # usage='`.skip [position]`',
         usage='`.skip [позиция]`'
     )
@@ -948,7 +978,8 @@ class Music(commands.Cog, name='Music'):
             if voice.channel != channel:
                 await ctx.send(
                     embed=create_embed(
-                        'Please wait until other members are done listening to music'
+                        # 'Please wait until other members are done listening to music'
+                        lang.phrases.skip_wait
                     ),
                     delete_after=10
                 )
@@ -959,7 +990,8 @@ class Music(commands.Cog, name='Music'):
                 if item['size'] == 0:
                     await ctx.send(
                         embed=create_embed(
-                            'The music queue is empty'
+                            # 'The music queue is empty'
+                            lang.phrases.skip_empty_queue
                         ),
                         delete_after=10
                     )
@@ -967,7 +999,7 @@ class Music(commands.Cog, name='Music'):
                     song = queue[pointer]
                     await ctx.send(
                         embed=create_embed(
-                            f'Skipped [{song["title"]}]({song["url"]})'
+                            f'{lang.phrases.skip_skipped} [{song["title"]}]({song["url"]})'
                         ),
                         delete_after=10
                     )
@@ -975,7 +1007,7 @@ class Music(commands.Cog, name='Music'):
                 elif pos < 1 or pos > item['size']:
                     await ctx.send(
                         embed=create_embed(
-                            f'The queue only have {item["size"]} songs, but you specified more than that'
+                            f'{lang.phrases.skip_the_queue_only_have} {item["size"]} {lang.phrases.skip_more_than_that}'
                         ),
                         delete_after=10
                     )
@@ -992,7 +1024,7 @@ class Music(commands.Cog, name='Music'):
                         )
                         await ctx.send(
                             embed=create_embed(
-                                f'Skipped [{song["title"]}]({song["url"]})'
+                                f'{lang.phrases.skip_skipped} [{song["title"]}]({song["url"]})'
                             ),
                             delete_after=10
                         )
@@ -1007,7 +1039,7 @@ class Music(commands.Cog, name='Music'):
                         )
                         await ctx.send(
                             embed=create_embed(
-                                f'Skipped [{song["title"]}]({song["url"]})'
+                                f'{lang.phrases.skip_skipped} [{song["title"]}]({song["url"]})'
                             ),
                             delete_after=10
                         )
@@ -1015,7 +1047,8 @@ class Music(commands.Cog, name='Music'):
         else:
             await ctx.send(
                 embed=create_embed(
-                    'Bot was not connected to any voice channel'
+                    # 'Bot was not connected to any voice channel'
+                    lang.phrases.skip_not_connected
                 ),
                 delete_after=10
             )
@@ -1023,7 +1056,7 @@ class Music(commands.Cog, name='Music'):
     @commands.command(
         name='volume',
         # description='Changes the volume (max=300)',
-        description='Изменяет громкость (максимум=300)',
+        description=lang.descriptions.volume,
         aliases=['vol', ],
         # usage='`.vol [volume]`',
         usage='`.vol [громкость]`'
@@ -1034,7 +1067,8 @@ class Music(commands.Cog, name='Music'):
         if ctx.voice_client == None:
             await ctx.send(
                 embed=create_embed(
-                    'Bot was not connected to any voice channel'
+                    # 'Bot was not connected to any voice channel'
+                    lang.phrases.volume_not_connected
                 ),
                 delete_after=10
             )
@@ -1044,14 +1078,16 @@ class Music(commands.Cog, name='Music'):
             if voice.channel != channel:
                 await ctx.send(
                     embed=create_embed(
-                        'Please wait until other members are done listening to music'
+                        # 'Please wait until other members are done listening to music'
+                        lang.phrases.volume_wait
                     ),
                     delete_after=10
                 )
             elif volume == None:
                 await ctx.send(
                     embed=create_embed(
-                        'Please specify the volume that you want'
+                        # 'Please specify the volume that you want'
+                        lang.phrases.volume_no_arg
                     ),
                     delete_after=10
                 )
@@ -1068,14 +1104,15 @@ class Music(commands.Cog, name='Music'):
                     voice.source.volume = volume/200
                     await ctx.send(
                         embed=create_embed(
-                            f'Music volume changed to {volume}'
+                            f'{lang.phrases.volume_changed} {volume}'
                         ),
                         delete_after=10
                     )
                 else:
                     await ctx.send(
                         embed=create_embed(
-                            'Volume cannot exceed 300'
+                            # 'Volume cannot exceed 300'
+                            lang.phrases.volume_max
                         ),
                         delete_after=10
                     )
@@ -1084,7 +1121,7 @@ class Music(commands.Cog, name='Music'):
         name='queue',
         aliases=['q', ],
         # description='Display your current music queue',
-        description='Показывает вашу очередь воспроизведения',
+        description=lang.descriptions.queue,
         # usage='`.queue [page]`',
         usage='`.queue [страница]`'
     )
@@ -1097,7 +1134,8 @@ class Music(commands.Cog, name='Music'):
             if voice.channel != channel:
                 await ctx.send(
                     embed=create_embed(
-                        'You are not using music'
+                        # 'You are not using music'
+                        lang.phrases.queue_not_using
                     ),
                     delete_after=10
                 )
@@ -1106,7 +1144,8 @@ class Music(commands.Cog, name='Music'):
                 if item['size'] == 0:
                     await ctx.send(
                         embed=create_embed(
-                            'The music queue is empty'
+                            # 'The music queue is empty'
+                            lang.phrases.queue_empty
                         ),
                         delete_after=10
                     )
@@ -1124,28 +1163,33 @@ class Music(commands.Cog, name='Music'):
                         embed = discord.Embed(
                             color=discord.Color.orange(),
                             description=output,
-                            title='**Music Queue**',
+                            # title='**Music Queue**',
+                            title=lang.phrases.queue_name,
                             timestamp=ctx.message.created_at
                         )
                         embed.add_field(
-                            name='Now Playing',
+                            # name='Now Playing',
+                            name=lang.phrases.queue_now_playing,
                             value=f"[{info['title']}]({info['url']})",
                             inline=False
                         )
                         embed.add_field(
-                            name='Entries',
+                            # name='Entries',
+                            name=lang.phrases.queue_entries,
                             value=f"{item['size']}"
                         )
                         embed.add_field(
-                            name='Repeating',
+                            # name='Repeating',
+                            name=lang.phrases.queue_repeating,
                             value=item['loop']
                         )
                         embed.add_field(
-                            name='Volume',
+                            # name='Volume',
+                            name=lang.phrases.queue_volume,
                             value=f"{item['volume']*200}"
                         )
                         embed.set_footer(
-                            text=f'Page {page} of {pages}'
+                            text=f'{lang.phrases.queue_page} {page} {lang.phrases.queue_of} {pages}'
                         )
                         await ctx.send(
                             embed=embed
@@ -1153,14 +1197,16 @@ class Music(commands.Cog, name='Music'):
                     else:
                         await ctx.send(
                             embed=create_embed(
-                                'The page you specified does not exist'
+                                # 'The page you specified does not exist'
+                                lang.phrases.queue_not_exist
                             ),
                             delete_after=10
                         )
         else:
             await ctx.send(
                 embed=create_embed(
-                    'Bot was not connected to any voice channel'
+                    # 'Bot was not connected to any voice channel'
+                    lang.phrases.queue_not_connected
                 ),
                 delete_after=10
             )
@@ -1169,7 +1215,7 @@ class Music(commands.Cog, name='Music'):
         name='dequeue',
         aliases=['rmq', 'rm'],
         # description='Remove a song from the music queue',
-        description='Удаляет песню из очереди',
+        description=lang.descriptions.dequeue,
         # usage='`.dequeue [song position in music queue]`',
         usage='`.dequeue [позиция песни в очереди]`'
     )
@@ -1179,7 +1225,8 @@ class Music(commands.Cog, name='Music'):
         if arg != None:
             await ctx.send(
                 embed=create_embed(
-                    'This command only takes in one argument'
+                    # 'This command only takes in one argument'
+                    lang.phrases.dequeue_arg
                 ),
                 delete_after=10
             )
@@ -1190,7 +1237,8 @@ class Music(commands.Cog, name='Music'):
                 if voice.channel != channel:
                     await ctx.send(
                         embed=create_embed(
-                            'Please wait until other members are done listening to music'
+                            # 'Please wait until other members are done listening to music'
+                            lang.phrases.dequeue_wait
                         ),
                         delete_after=10
                     )
@@ -1235,21 +1283,22 @@ class Music(commands.Cog, name='Music'):
 
                         await ctx.send(
                             embed=create_embed(
-                                f'Song [{info["title"]}]({info["url"]}) removed from music queue'
+                                f'{lang.phrases.dequeue_song} [{info["title"]}]({info["url"]}) {lang.phrases.dequeue_removed}'
                             ),
                             delete_after=10
                         )
                     else:
                         await ctx.send(
                             embed=create_embed(
-                                f'The music queue have **{item["size"]}** songs, but you specified more than that!'
+                                f'{lang.phrases.dequeue_music} **{item["size"]}** {lang.phrases.dequeue_more_than_that}'
                             ),
                             delete_after=10
                         )
             else:
                 await ctx.send(
                     embed=create_embed(
-                        'Bot was not connected to any voice channel'
+                        # 'Bot was not connected to any voice channel'
+                        lang.phrases.dequeue_not_connected
                     ),
                     delete_after=10
                 )
@@ -1258,7 +1307,7 @@ class Music(commands.Cog, name='Music'):
         name='clearqueue',
         aliases=['flush', 'empty', 'clearq'],
         # description='Clear the current queue',
-        description='Очищает очередь воспроизведения',
+        description=lang.descriptions.clearqueue,
         usage='`.clearqueue`'
     )
     @ensure_voice()
@@ -1267,7 +1316,8 @@ class Music(commands.Cog, name='Music'):
         if arg != None:
             await ctx.send(
                 embed=create_embed(
-                    'This command does not take in any argument'
+                    # 'This command does not take in any argument'
+                    lang.phrases.clearqueue_arg
                 ),
                 delete_after=10
             )
@@ -1278,7 +1328,8 @@ class Music(commands.Cog, name='Music'):
                 if voice.channel != channel:
                     await ctx.send(
                         embed=create_embed(
-                            'Please wait until other members are done listening to music'
+                            # 'Please wait until other members are done listening to music'
+                            lang.phrases.clearqueue_wait
                         ),
                         delete_after=10
                     )
@@ -1295,14 +1346,16 @@ class Music(commands.Cog, name='Music'):
                     )
                     await ctx.send(
                         embed=create_embed(
-                            'Queue cleared'
+                            # 'Queue cleared'
+                            lang.phrases.clearqueue_cleared
                         ),
                         delete_after=10
                     )
             else:
                 await ctx.send(
                     embed=create_embed(
-                        'Bot was not connected to any voice channel'
+                        # 'Bot was not connected to any voice channel'
+                        lang.phrases.dequeue_not_connected
                     ),
                     delete_after=10
                 )
@@ -1311,7 +1364,7 @@ class Music(commands.Cog, name='Music'):
         name='loop',
         aliases=['repeat', ],
         # description='Toggle between looping all, one or off',
-        description='Переключает между циклированием всех, одного или выключает его',
+        description=lang.descriptions.loop,
         # usage='`.loop [all/one/off]`',
         usage='`.loop [all/one/off]`'
     )
@@ -1324,7 +1377,8 @@ class Music(commands.Cog, name='Music'):
             if voice.channel != channel:
                 await ctx.send(
                     embed=create_embed(
-                        'Please wait until other members are done listening to music'
+                        # 'Please wait until other members are done listening to music'
+                        lang.phrases.loop_wait
                     ),
                     delete_after=10
                 )
@@ -1341,7 +1395,8 @@ class Music(commands.Cog, name='Music'):
                     )
                     await ctx.send(
                         embed=create_embed(
-                            'Repeating all songs in the music queue'
+                            # 'Repeating all songs in the music queue'
+                            lang.phrases.loop_repeat_all
                         ),
                         delete_after=10
                     )
@@ -1356,7 +1411,8 @@ class Music(commands.Cog, name='Music'):
                     )
                     await ctx.send(
                         embed=create_embed(
-                            'Repeating the current song in the music queue'
+                            # 'Repeating the current song in the music queue'
+                            lang.phrases.loop_repeat_one
                         ),
                         delete_after=10
                     )
@@ -1371,21 +1427,24 @@ class Music(commands.Cog, name='Music'):
                     )
                     await ctx.send(
                         embed=create_embed(
-                            'Repeating song is now off'
+                            # 'Repeating song is now off'
+                            lang.phrases.loop_repeat_off
                         ),
                         delete_after=10
                     )
                 else:
                     await ctx.send(
                         embed=create_embed(
-                            'Please use the correct argument'
+                            # 'Please use the correct argument'
+                            lang.phrases.loop_incorrect_arg
                         ),
                         delete_after=10
                     )
         else:
             await ctx.send(
                 embed=create_embed(
-                    'Bot was not connected to any voice channel'
+                    # 'Bot was not connected to any voice channel'
+                    lang.phrases.loop_not_connected
                 ),
                 delete_after=10
             )
@@ -1395,7 +1454,7 @@ class Music(commands.Cog, name='Music'):
         name='playlist',
         aliases=['pl', 'plist'],
         # description='Access playlist features',
-        description='Доступ к функциям плейлиста',
+        description=lang.descriptions.playlist,
         # usage='`.playlist [option]`',
         usage='`.playlist [option]`'
     )
@@ -1405,7 +1464,8 @@ class Music(commands.Cog, name='Music'):
         if size == 0:
             await ctx.send(
                 embed=create_embed(
-                    'There is no playlist created in this guild'
+                    # 'There is no playlist created in this guild'
+                    lang.phrases.playlist_no_in_guild
                 ),
                 delete_after=10
             )
@@ -1422,11 +1482,11 @@ class Music(commands.Cog, name='Music'):
                 color=discord.Color.orange(),
                 description=output,
                 # title=f'**Playlists in {ctx.guild.name}**',
-                title=f'**Плейлисты на сервере {ctx.guild.name}**',
+                title=f'**{lang.phrases.playlist_on_server} {ctx.guild.name}**',
                 timestamp=ctx.message.created_at
             )
             embed.set_footer(
-                text=f'Page {page} of {pages}'
+                text=f'{lang.phrases.playlist_page} {page} {lang.phrases.playlist_of} {pages}'
             )
             await ctx.send(
                 embed=embed
@@ -1435,7 +1495,7 @@ class Music(commands.Cog, name='Music'):
     @playlist.command(
         name='play',
         # description='Add the playlist to queue and start playing',
-        description='Добавляет плейлист в очередь и начинает воспроизведение',
+        description=lang.descriptions.playlist_play,
         # usage='`.playlist play [playlist name]`',
         usage='`.playlist play [имя плейлиста]`',
         aliases=['p', ]
@@ -1452,7 +1512,7 @@ class Music(commands.Cog, name='Music'):
         if playlist == None:
             await ctx.send(
                 embed=create_embed(
-                    f'Playlist **{name}** not found'
+                    f'{lang.phrases.playlist_play_playlist} **{name}** {lang.phrases.playlist_play_not_found}'
                 ),
                 delete_after=10
             )
@@ -1505,7 +1565,7 @@ class Music(commands.Cog, name='Music'):
                         )
                         await ctx.send(
                             embed=create_embed(
-                                f'Playlist **{name}** added to queue'
+                                f'{lang.phrases.playlist_play_playlist} **{name}** {lang.phrases.playlist_play_added_to_queue}'
                             ),
                             delete_after=10
                         )
@@ -1513,7 +1573,8 @@ class Music(commands.Cog, name='Music'):
                     else:
                         await ctx.send(
                             embed=create_embed(
-                                'Please wait until other members are done listening to music'
+                                # 'Please wait until other members are done listening to music'
+                                lang.phrases.playlist_play_wait
                             ),
                             delete_after=10
                         )
@@ -1533,7 +1594,7 @@ class Music(commands.Cog, name='Music'):
                     )
                     await ctx.send(
                         embed=create_embed(
-                            f'Playlist **{name}** added to queue'
+                            f'{lang.phrases.playlist_play_playlist} **{name}** {lang.phrases.playlist_play_added_to_queue}'
                         ),
                         delete_after=10
                     )
@@ -1571,7 +1632,7 @@ class Music(commands.Cog, name='Music'):
                 )
                 await ctx.send(
                     embed=create_embed(
-                        f'Playlist **{name}** added to queue'
+                        f'{lang.phrases.playlist_play_playlist} **{name}** {lang.phrases.playlist_play_added_to_queue}'
                     ),
                     delete_after=10
                 )
@@ -1580,7 +1641,7 @@ class Music(commands.Cog, name='Music'):
     @playlist.command(
         name='create',
         # description='Create a playlist',
-        description='Создаёт плейлист',
+        description=lang.descriptions.playlist_create,
         # usage='`.playlist create [playlist name]`',
         usage='`.playlist create [имя плейлиста]`'
     )
@@ -1603,14 +1664,15 @@ class Music(commands.Cog, name='Music'):
             )
             await ctx.send(
                 embed=create_embed(
-                    f'Playlist **{name}** created'
+                    f'{lang.phrases.playlist_create_playlist} **{name}** {lang.phrases.playlist_create_created}'
                 ),
                 delete_after=10
             )
         else:
             await ctx.send(
                 embed=create_embed(
-                    'A playlist with the same name already exist'
+                    # 'A playlist with the same name already exist'
+                    lang.phrases.playlist_create_already_exist
                 ),
                 delete_after=10
             )
@@ -1618,7 +1680,7 @@ class Music(commands.Cog, name='Music'):
     @playlist.command(
         name='delete',
         # description='Delete an existing playlist',
-        description='Удаляет существующий плейлист',
+        description=lang.descriptions.playlist_delete,
         # usage='`.playlist delete [playlist name]`',
         usage='`.playlist delete [имя плейлиста]`',
         aliases=['del', ]
@@ -1634,7 +1696,7 @@ class Music(commands.Cog, name='Music'):
         if playlist == None:
             await ctx.send(
                 embed=create_embed(
-                    f'Playlist **{name}** not found'
+                    f'{lang.phrases.playlist_delete_playlist} **{name}** {lang.phrases.playlist_delete_not_found}'
                 ),
                 delete_after=10
             )
@@ -1647,7 +1709,7 @@ class Music(commands.Cog, name='Music'):
             )
             await ctx.send(
                 embed=create_embed(
-                    f'Playlist **{name}** deleted'
+                    f'{lang.phrases.playlist_delete_playlist} **{name}** {lang.phrases.playlist_delete_deleted}'
                 ),
                 delete_after=10
             )
@@ -1655,7 +1717,7 @@ class Music(commands.Cog, name='Music'):
     @playlist.command(
         name='add',
         # description='Add a song to an existing playlist',
-        description='Добавляет песню в существующий плейлист',
+        description=lang.descriptions.playlist_add,
         # usage='`.playlist add [playlist name] [song name or url]`',
         usage='`.playlist add [имя плейлиста] [url или название песни]`'
     )
@@ -1673,7 +1735,8 @@ class Music(commands.Cog, name='Music'):
                 if 'title' not in info['entries'][0]:
                     await ctx.send(
                         embed=create_embed(
-                            'This playlist link is not supported'
+                            # 'This playlist link is not supported'
+                            lang.phrases.playlist_add_not_supported
                         ),
                         delete_after=10
                     )
@@ -1699,7 +1762,7 @@ class Music(commands.Cog, name='Music'):
                         )
                         await ctx.send(
                             embed=create_embed(
-                                f'Song [{song_info["title"]}]({song_info["webpage_url"]}) added to **{name}**'
+                                f'{lang.phrases.playlist_add_song} [{song_info["title"]}]({song_info["webpage_url"]}) {lang.phrases.playlist_add_added_to} **{name}**'
                             ),
                             delete_after=10
                         )
@@ -1724,7 +1787,7 @@ class Music(commands.Cog, name='Music'):
                             )
                         await ctx.send(
                             embed=create_embed(
-                                f'{len(info["entries"])} songs added to **{name}**'
+                                f'{len(info["entries"])} {lang.phrases.playlist_add_songs_added_to} **{name}**'
                             ),
                             delete_after=10
                         )
@@ -1755,7 +1818,7 @@ class Music(commands.Cog, name='Music'):
         else:
             await ctx.send(
                 embed=create_embed(
-                    f'Playlist **{name}** not found\nNote: Try adding " " to your playlist name'
+                    f'{lang.phrases.playlist_add_song} **{name}** {lang.phrases.playlist_add_not_found}\n{lang.phrases.playlist_add_note}: {lang.phrases.playlist_add_note_content}'
                 ),
                 delete_after=10
             )
@@ -1763,7 +1826,7 @@ class Music(commands.Cog, name='Music'):
     @playlist.command(
         name='remove',
         # description='Remove a song from an existing playlist',
-        description='Удаляет песню из существующего плейлиста',
+        description=lang.descriptions.playlist_remove,
         # usage='`.playlist remove [song number] [playlist name]`',
         usage='`.playlist remove [номер песни] [имя плейлиста]`',
         aliases=['rm']
@@ -1806,27 +1869,27 @@ class Music(commands.Cog, name='Music'):
                 )
                 await ctx.send(
                     embed=create_embed(
-                        f'Song [{info["title"]}]({info["url"]}) deleted from **{name}**'
+                        f'{lang.phrases.playlist_remove_song} [{info["title"]}]({info["url"]}) {lang.phrases.playlist_remove_deleted_from} **{name}**'
                     ),
                     delete_after=10
                 )
             else:
                 await ctx.send(
                     embed=create_embed(
-                        f'The playlist have **{playlist["size"]}** songs, but you specified more than that!'
+                        f'{lang.phrases.playlist_remove_the_playlist_have} **{playlist["size"]}** {lang.phrases.playlist_remove_more_than_that}!'
                     )
                 )
         else:
             await ctx.send(
                 embed=create_embed(
-                    f'Playlist **{name}** not found'
+                    f'{lang.phrases.playlist_remove_playlist} **{name}** {lang.phrases.playlist_remove_not_found}'
                 )
             )
 
     @playlist.command(
         name='list',
         # description='List the songs in an existing playlist',
-        description='Перечисляет песени в существующем плейлисте',
+        description=lang.descriptions.playlist_list,
         # usage='`.playlist list [playlist name] [page]`',
         usage='`.playlist list [имя плейлиста] [страница]`',
         aliases=['ls']
@@ -1843,7 +1906,8 @@ class Music(commands.Cog, name='Music'):
             if playlist['size'] == 0:
                 await ctx.send(
                     embed=create_embed(
-                        'The playlist is empty'
+                        # 'The playlist is empty'
+                        lang.phrases.playlist_list_empty
                     ),
                     delete_after=10
                 )
@@ -1867,7 +1931,7 @@ class Music(commands.Cog, name='Music'):
                         value=f"{playlist['size']}"
                     )
                     embed.set_footer(
-                        text=f'Page {page} of {pages} | use .playlist list [playlist name] [page]'
+                        text=f'{lang.phrases.playlist_list_Page} {page} {lang.phrases.playlist_list_of} {pages} {lang.phrases.playlist_list_note}'
                     )
                     await ctx.send(
                         embed=embed
@@ -1875,14 +1939,16 @@ class Music(commands.Cog, name='Music'):
                 else:
                     await ctx.send(
                         embed=create_embed(
-                            'The page you specified does not exist'
+                            # 'The page you specified does not exist'
+                            lang.phrases.playlist_list_page_not_exist
                         ),
                         delete_after=10
                     )
         else:
             ctx.send(
                 embed=create_embed(
-                    'The playlist does not exist\nNote: Try adding " " to your playlist name'
+                    # 'The playlist does not exist\nNote: Try adding " " to your playlist name'
+                    lang.phrases.playlist_list_playlist_not_exist
                 )
             )
 
@@ -1903,7 +1969,7 @@ class Music(commands.Cog, name='Music'):
                         await text_channel.send(
                             embed=create_embed(
                                 # 'Bot was restarted, playing from the most recent song in queue'
-                                'Я перезагрузился, играю последнюю песню из очереди'
+                                lang.phrases.on_ready_restarted
                             ),
                             delete_after=10
                         )
@@ -1927,7 +1993,8 @@ class Music(commands.Cog, name='Music'):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
                 embed=create_embed(
-                    'The play command also need a link or search keyword to work'
+                    # 'The play command also need a link or search keyword to work'
+                    lang.errors.play_error
                 ),
                 delete_after=10
             )
@@ -1937,7 +2004,8 @@ class Music(commands.Cog, name='Music'):
         if isinstance(error, commands.BadArgument):
             await ctx.send(
                 embed=create_embed(
-                    'Please use the correct argument'
+                    # 'Please use the correct argument'
+                    lang.errors.dequeue_error
                 ),
                 delete_after=10
             )
@@ -1947,7 +2015,8 @@ class Music(commands.Cog, name='Music'):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
                 embed=create_embed(
-                    'Please specify the correct argument'
+                    # 'Please specify the correct argument'
+                    lang.errors.add_error
                 )
             )
 
